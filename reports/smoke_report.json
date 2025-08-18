@@ -1,0 +1,94 @@
+{
+  "confusion": {
+    "Normal": {
+      "Uncertain": 3,
+      "OR": 1
+    },
+    "IR": {
+      "IR": 4,
+      "Uncertain": 10,
+      "OR": 2
+    },
+    "OR": {
+      "OR": 10,
+      "Uncertain": 17
+    },
+    "Ball": {
+      "Uncertain": 15,
+      "IR": 1
+    }
+  },
+  "per_load": {
+    "0": {
+      "Normal": {
+        "Uncertain": 1
+      },
+      "IR": {
+        "IR": 3,
+        "OR": 1
+      },
+      "OR": {
+        "OR": 4,
+        "Uncertain": 3
+      },
+      "Ball": {
+        "Uncertain": 3,
+        "IR": 1
+      }
+    },
+    "1": {
+      "Normal": {
+        "OR": 1
+      },
+      "IR": {
+        "Uncertain": 2,
+        "IR": 1,
+        "OR": 1
+      },
+      "OR": {
+        "OR": 5,
+        "Uncertain": 2
+      },
+      "Ball": {
+        "Uncertain": 4
+      }
+    },
+    "2": {
+      "Normal": {
+        "Uncertain": 1
+      },
+      "IR": {
+        "Uncertain": 4
+      },
+      "OR": {
+        "Uncertain": 6
+      },
+      "Ball": {
+        "Uncertain": 4
+      }
+    },
+    "3": {
+      "Normal": {
+        "Uncertain": 1
+      },
+      "IR": {
+        "Uncertain": 4
+      },
+      "OR": {
+        "Uncertain": 6,
+        "OR": 1
+      },
+      "Ball": {
+        "Uncertain": 4
+      }
+    }
+  },
+  "metrics": {
+    "total": 63,
+    "accuracy": 0.2222222222222222,
+    "ball_recall": 0.0,
+    "false_ball_ir": 0,
+    "false_ball_or": 0,
+    "uncertain_rate": 0.7142857142857143
+  }
+}

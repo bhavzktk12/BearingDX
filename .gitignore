@@ -1,0 +1,23 @@
+# Ignore large raw datasets
+data/
+archives/
+OG/
+
+# Ignore models and logs
+models/
+logs/
+
+# Ignore Python cache & temp
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore virtual environments
+.venv/
+env/
+venv/
+
+# Ignore editor configs
+.vscode/
+.idea/
+.env
