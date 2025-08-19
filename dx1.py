@@ -62,7 +62,7 @@ def compute_diagnostic_indicators(parsed_result: Dict) -> Dict[str, Any]:
     diagnostics["tier2"]["transient_event_density"] = float(100 * np.sum(peaks > 5 * med_peak) / n)
     diagnostics["tier2"]["crest_factor_stability"] = float(1 / (np.std(cf) + 1e-3))
     kflag = kurt > 4.5
-    diagnostics["tier2"]["impulse_persistence"] = float(max(_streaks(kflag), default=0) / n)
+    diagnostics["tier2"]["impulse_Spersistence"] = float(max(_streaks(kflag), default=0) / n)
 
     quad = np.polyfit(t, rms, 2)[0] if n > 2 else 0.0
     diagnostics["tier3"]["degradation_acceleration"] = float(quad)
