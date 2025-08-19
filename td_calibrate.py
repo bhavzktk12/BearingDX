@@ -2,7 +2,7 @@
 import os, json, re
 from typing import Dict, List
 from bdxio.vp1 import parse_vibration_file
-from dx1 import infer_fault_location_time_domain
+from features.td import infer_fault_location_time_domain
 from bk1 import RPM_BY_LOAD
 
 NORMAL_FILES = [

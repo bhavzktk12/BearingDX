@@ -144,3 +144,75 @@ def infer_fault_location_time_domain(parsed_result: Dict, load_hp: int = 1) -> D
         "reason": abstain_reason,
         "details": {"avg_quality": avg_quality, "sensor": sensor}
     }
+
+# ---- TD file-level vector (for ML) ----
+def td_file_level_vector(parsed_result: Dict[str, Any]) -> np.ndarray:
+    # this is your _file_level_vector_for_ml from dx1.py, verbatim
+    import numpy as np, pandas as pd  # local import to avoid circulars
+    segs = parsed_result.get("segments", [])
+    if not segs:
+        return np.zeros((1, 1), dtype=float)
+    df = pd.DataFrame(segs)
+    vec: List[float] = []
+    keys = ["rms","peak","crest_factor","kurtosis","skewness","form_factor","impulse_factor","margin_factor"]
+    for k in keys:
+        if k in df:
+            v = df[k].to_numpy(dtype=float)
+            vec += [float(np.mean(v)), float(np.std(v)), float(np.percentile(v, 90))]
+        else:
+            vec += [0.0,0.0,0.0]
+
+    # threshold proportions
+    if {"kurtosis","crest_factor","impulse_factor"}.issubset(df.columns):
+        v_k = (df["kurtosis"].to_numpy() > 5.0).mean()
+        v_c = (df["crest_factor"].to_numpy() > 7.0).mean()
+        v_i = (df["impulse_factor"].to_numpy() > 12.0).mean()
+    else:
+        v_k = v_c = v_i = 0.0
+    vec += [float(v_k), float(v_c), float(v_i)]
+
+    # file-level indicators
+    di = compute_diagnostic_indicators(parsed_result)
+    take = [
+        ("tier1","rms_trend_slope"),
+        ("tier1","kurtosis_burst_index"),
+        ("tier1","peak_to_rms_ratio_sd"),
+        ("tier1","top_3_severity"),
+        ("tier2","transient_event_density"),
+        ("tier2","impulse_persistence"),
+        ("tier3","degradation_acceleration"),
+        ("tier3","dynamic_range_collapse"),
+        ("tier3","skewness_polarity_shift"),
+        ("tier4","kurtosis_rms_covariance"),
+        ("tier4","noise_contamination_index"),
+        ("tier4","trend_inconsistency_flag"),
+        ("tier5","fault_progression_score"),
+        ("tier5","harmonic_distortion_indicator"),
+    ]
+    for tier, key in take:
+        vec.append(float(di[tier].get(key, 0.0)))
+
+    return np.asarray(vec, dtype=float).reshape(1, -1)
+
+# ---- Pretty printer (TD-only utility used by vp1.py) ----
+def summarize_segment_features(segments: List[Dict[str, Any]], top_n: int = 3) -> None:
+    import pandas as pd
+    df = pd.DataFrame(segments)
+    if df.empty:
+        print("No segments available for summary.")
+        return
+    feature_cols = ["rms","peak","crest_factor","kurtosis","skewness","form_factor","impulse_factor","margin_factor"]
+    print("\n📊 Segment Feature Summary (All Segments):")
+    print("=" * 65)
+    print(f"{'Feature':<16} {'Mean':>10} {'Std':>10} {'Max':>10}")
+    print("-" * 65)
+    for f in feature_cols:
+        vals = df[f]
+        print(f"{f:<16} {vals.mean():>10.4f} {vals.std():>10.4f} {vals.max():>10.4f}")
+    df["severity"] = df["peak"] * df["kurtosis"]
+    tops = df.sort_values(by="severity", ascending=False).head(top_n)
+    for _, row in tops.iterrows():
+        seg = row.to_dict()
+        print(f"\n🕒 Segment {int(seg['segment_id'])} — TD:")
+        for k in feature_cols:
+            print(f"{k:<16} {float(seg[k]):>10.4f}")

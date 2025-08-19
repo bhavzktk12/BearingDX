@@ -3,7 +3,7 @@ from typing import Any, Dict
 import numpy as np
 # engine/vectorize.py
 from features.fd import compute_fd_indicators, _ball_fd_metrics
-from dx1 import _file_level_vector_for_ml
+from features.td import td_file_level_vector
 
 
 def file_level_vector_td_fd(parsed_result: Dict[str, Any], rpm: float) -> np.ndarray:
@@ -12,7 +12,7 @@ def file_level_vector_td_fd(parsed_result: Dict[str, Any], rpm: float) -> np.nda
     TD: stats + indicators (dx1._file_level_vector_for_ml)
     FD: FFT & envelope peaks/SNRs/sidebands (+2xBSF) + Ball-focused metrics
     """
-    td = _file_level_vector_for_ml(parsed_result)  # shape (1, N_td)
+    td = td_file_level_vector(parsed_result)  # shape (1, N_td)
     fd = compute_fd_indicators(parsed_result, rpm, env_band=None)
 
     fd_keys = [
