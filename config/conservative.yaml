@@ -1,0 +1,108 @@
+# BearingDX Conservative Configuration
+# Inherits from defaults.yaml and overrides for conservative fault detection
+# Optimized to minimize false positives at the cost of some false negatives
+
+# Inherit all defaults
+_inherit_from: 'defaults.yaml'
+
+# Conservative fusion thresholds
+fusion_thresholds:
+  # Ball fault detection (stricter)
+  min_ball_score: 0.80              # Higher threshold for ball fault (was 0.72)
+  min_bsf_snr: 2.10                 # Higher BSF SNR requirement (was 1.90)
+  min_ftf_snr: 1.25                 # Higher FTF SNR requirement (was 1.12)
+  min_sb_ratio: 1.08                # Higher sideband ratio (was 1.02)
+  promote_ball_score: 0.80          # Higher promotion threshold (was 0.72)
+  
+  # Inner/Outer race detection (stricter)
+  iror_snr_min: 2.00                # Higher BPFI/BPFO SNR requirement (was 1.70)
+  iror_ratio_min: 1.20              # Higher dominance ratio (was 1.10)
+  
+  # Normal classification (more restrictive)
+  normal_td_conf_min: 0.75          # Higher TD confidence for Normal (was 0.60)
+  normal_ball_score_max: 0.60       # Lower ball score allowed (was 0.65)
+  normal_iror_dom_max: 1.40         # Lower IR/OR dominance allowed (was 1.60)
+  normal_iror_ratio_max: 1.10       # Lower ratio allowed (was 1.15)
+  normal_fault_energy_max: 1.80     # Lower fault energy allowed (was 2.00)
+  min_health_for_normal: 0.80       # Higher health threshold (was 0.70)
+
+# Stricter quality requirements
+quality:
+  min_file_quality: 0.70            # Higher quality requirement (was 0.6)
+  min_valid_segments: 8             # More valid segments required (was 5)
+  clipping_threshold: 0.003         # Lower clipping tolerance (was 0.005)
+  low_variance_threshold: 5e-7      # Higher variance requirement (was 1e-6)
+  min_quality_for_fd: 0.5           # Higher quality for FD analysis (was 0.4)
+
+# Conservative time domain settings
+time_domain:
+  kurtosis_burst_threshold: 6.0     # Higher kurtosis threshold (was 5.0)
+  high_peak_factor: 6.0             # Higher peak factor (was 5.0)
+  
+  # Higher reliability requirements
+  reliability:
+    IR: 0.75    # Higher IR reliability requirement (was 0.70)
+    OR: 0.70    # Higher OR reliability requirement (was 0.60)
+    Ball: 0.60  # Higher Ball reliability requirement (was 0.50)
+
+# Conservative frequency domain settings
+frequency_domain:
+  min_snr_for_detection: 2.0        # Higher minimum SNR (was 1.5)
+  fault_freq_tolerance: 0.08        # Tighter frequency tolerance (was 0.1)
+  
+# Stricter envelope analysis
+envelope:
+  min_band_snr: 1.5                 # Higher band selection SNR (was 1.2)
+  selection_metric: 'max_fault_snr' # Prefer fault-specific SNR
+
+# Conservative classification settings
+classification:
+  mode: 'conservative'
+  min_confidence_healthy: 0.75      # Higher confidence for Healthy (was 0.6)
+  min_confidence_unhealthy: 0.50    # Higher confidence for Unhealthy (was 0.4)
+
+# More restrictive multisensor fusion
+multisensor:
+  require_sensor_consensus: true    # Require sensor agreement (was false)
+  disagreement_threshold: 0.25      # Tighter consensus requirement (was 0.3)
+  
+  # Adjust sensor weights to favor primary sensor more
+  sensor_weights:
+    DE: 0.8   # Increase DE weight (was 0.7)
+    FE: 0.2   # Decrease FE weight (was 0.3)
+    BA: 0.1   # Decrease BA weight (was 0.2)
+
+# Evidence weighting - favor more reliable indicators
+fusion:
+  td_weight: 0.3                    # Reduce TD weight (was 0.4)
+  fd_weight: 0.7                    # Increase FD weight (was 0.6)
+  quality_weight: 0.3               # Increase quality influence (was 0.2)
+
+# Performance settings optimized for accuracy over speed
+performance:
+  use_top_segments_only: true
+  top_segment_fraction: 0.15        # Use fewer, highest quality segments (was 0.25)
+
+# Stricter validation
+validation:
+  strict_mode: true                 # Enable strict validation (was false)
+  min_signal_length: 8192           # Require longer signals (was 4096)
+  check_signal_integrity: true
+
+# Conservative output settings
+output:
+  include_debug_info: true          # Include debug info for verification
+  include_rationale: true           # Always include rationale
+  precision: 6                      # Higher precision for analysis (was 4)
+
+# Logging for conservative mode
+logging:
+  level: 'DEBUG'                    # More detailed logging (was INFO)
+  file_output: true                 # Enable file logging for audit trail
+  
+# Profile identification
+profile_info:
+  name: 'conservative'
+  description: 'Conservative fault detection optimized to minimize false positives'
+  use_case: 'Production environments where false alarms are costly'
+  trade_offs: 'Higher accuracy, lower sensitivity, may miss early-stage faults'

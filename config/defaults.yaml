@@ -1,0 +1,209 @@
+# BearingDX Default Configuration
+# This file contains the baseline configuration for all BearingDX operations
+
+# System Information
+version: "1.0.0"
+algorithm_version: "BDX-2024.1"
+
+# Signal Processing Configuration
+segmentation:
+  window_size: 2048          # Segment length in samples
+  overlap: 0.5               # Overlap fraction [0, 1)
+  normalization: 'zscore'    # 'zscore', 'rms', 'minmax', 'none'
+  min_segment_length: 1024   # Minimum acceptable segment length
+
+# Bearing Geometry (CWRU SKF 6205-2RS JEM Default)
+bearing_geometry:
+  rolling_elements: 9         # Number of rolling elements (Z)
+  ball_diameter_mm: 7.938     # Ball diameter (Bd) in mm  
+  pitch_diameter_mm: 39.04    # Pitch diameter (Pd) in mm
+  contact_angle_deg: 0.0      # Contact angle (θ) in degrees
+
+# Load to RPM Mapping (CWRU Dataset)
+load_rpm_map:
+  0: 1797  # 0 HP load
+  1: 1772  # 1 HP load  
+  2: 1750  # 2 HP load
+  3: 1730  # 3 HP load
+
+# Sampling Rate Configuration
+sampling:
+  default_fs: 12000.0        # Default sampling rate in Hz
+  auto_detect: true          # Auto-detect from file when possible
+  valid_fs_range: [8000, 48000]  # Acceptable sampling rate range
+
+# Envelope Analysis Configuration
+envelope:
+  # Candidate frequency bands for envelope analysis [Hz]
+  candidate_bands:
+    - [1000, 3000]    # Low frequency band
+    - [2000, 5000]    # Mid-low frequency band  
+    - [3000, 6000]    # Mid frequency band
+    - [6000, 10000]   # High frequency band
+  
+  auto_select: true           # Enable automatic band selection
+  selection_metric: 'max_fault_snr'  # 'max_fault_snr', 'max_cyclic_content'
+  min_band_snr: 1.2          # Minimum SNR for band selection
+  
+  # Envelope processing parameters
+  prewhiten: true            # Apply pre-whitening before envelope
+  smooth_bins: 41            # Smoothing kernel size for pre-whitening
+  filter_order: 4            # Bandpass filter order
+
+# Quality Assessment Configuration
+quality:
+  # File-level quality requirements
+  min_file_quality: 0.6      # Minimum fraction of valid segments
+  min_valid_segments: 5      # Minimum number of valid segments required
+  
+  # Segment-level quality thresholds
+  clipping_threshold: 0.005  # Max fraction of samples at full scale
+  low_variance_threshold: 1e-6  # Minimum RMS threshold (post-normalize)
+  dc_drift_factor: 3.0       # DC offset threshold (× median absolute deviation)
+  excessive_noise_kurtosis: 30.0  # Kurtosis threshold for noise detection
+  
+  # Quality baseline percentiles
+  baseline_percentiles: [5, 50, 95]  # p5, p50, p95 for feature ranges
+
+# Time Domain Feature Configuration
+time_domain:
+  # Feature computation parameters
+  compute_all_features: true  # Compute full TD feature set
+  robust_statistics: true    # Use robust estimators when possible
+  
+  # File-level indicator parameters
+  kurtosis_burst_threshold: 5.0     # Threshold for kurtosis burst detection
+  high_peak_factor: 5.0             # Factor for transient event detection
+  trend_window_min: 10              # Minimum segments for trend analysis
+  
+  # TD classification reliability by fault type
+  reliability:
+    IR: 0.70    # Inner race fault TD reliability
+    OR: 0.60    # Outer race fault TD reliability  
+    Ball: 0.50  # Ball fault TD reliability
+
+# Frequency Domain Configuration  
+frequency_domain:
+  # FFT parameters
+  window_function: 'hann'     # FFT window function
+  zero_padding_factor: 1      # Zero padding multiplier
+  frequency_resolution: 1.0   # Frequency resolution for energy integration
+  
+  # Fault frequency analysis
+  fault_freq_tolerance: 0.1   # Tolerance factor for fault frequency matching
+  harmonic_count: 3           # Number of harmonics to analyze
+  sideband_count: 2           # Number of sidebands to analyze per side
+  sideband_spacing_factor: 0.1  # Sideband spacing as fraction of fault freq
+  
+  # SNR computation
+  noise_estimation_method: 'local'  # 'local', 'global', 'percentile'
+  snr_window_factor: 2.0      # SNR window size factor
+  min_snr_for_detection: 1.5  # Minimum SNR for fault detection
+
+# Fusion Engine Configuration
+fusion:
+  # Processing workflow flags
+  enable_normal_fast_path: true    # Use envelope-only Normal gate
+  enable_ball_special_logic: true  # Special handling for ball faults
+  enable_multisensor_fusion: true  # Fuse multiple sensor results
+  
+  # Quality gates
+  min_quality_for_fd: 0.4     # Minimum quality to perform FD analysis
+  require_td_screening: true   # Require TD screening before FD
+  
+  # Evidence weighting
+  td_weight: 0.4              # Time domain evidence weight
+  fd_weight: 0.6              # Frequency domain evidence weight
+  quality_weight: 0.2         # Quality score influence weight
+
+# Multi-sensor Configuration
+multisensor:
+  # Sensor importance weights
+  sensor_weights:
+    DE: 0.7   # Drive end accelerometer (primary)
+    FE: 0.3   # Fan end accelerometer (secondary)  
+    BA: 0.2   # Base accelerometer (tertiary)
+  
+  # Fusion parameters
+  require_sensor_consensus: false   # Require agreement between sensors
+  disagreement_threshold: 0.3       # Max difference for consensus
+  min_sensors_required: 1           # Minimum sensors needed for diagnosis
+
+# Classification Configuration
+classification:
+  # Health mapping rules
+  healthy_fault_types: ['Normal']           # Fault types considered healthy
+  unhealthy_fault_types: ['IR', 'OR', 'Ball']  # Fault types considered unhealthy
+  uncertain_fault_types: ['Uncertain']     # Uncertain classifications
+  
+  # Health classification mode
+  mode: 'conservative'        # 'conservative' or 'sensitive'
+  
+  # Confidence requirements
+  min_confidence_healthy: 0.6    # Minimum confidence for Healthy classification
+  min_confidence_unhealthy: 0.4  # Minimum confidence for Unhealthy classification
+
+# Performance Optimization
+performance:
+  # Caching configuration
+  enable_caching: true        # Enable analysis result caching
+  max_cache_size: 100         # Maximum number of cached results
+  cache_timeout: 3600         # Cache timeout in seconds
+  
+  # Processing optimization
+  use_top_segments_only: true      # Analyze only top quality segments for FD
+  top_segment_fraction: 0.25       # Fraction of top segments to use
+  vectorize_operations: true       # Use vectorized numpy operations
+  parallel_processing: false       # Enable parallel processing (future)
+  max_workers: 4                   # Maximum worker threads (if parallel)
+  
+  # Memory management
+  max_segment_memory_mb: 100       # Maximum memory for segment storage
+  cleanup_intermediate: true       # Clean up intermediate results
+
+# Logging Configuration
+logging:
+  level: 'INFO'               # Logging level: DEBUG, INFO, WARNING, ERROR
+  console_output: true        # Enable console logging
+  file_output: false          # Enable file logging
+  log_file: 'bearingdx.log'   # Log file name
+  max_log_size_mb: 10         # Maximum log file size
+  backup_count: 3             # Number of backup log files
+
+# Output Configuration
+output:
+  # Default output format
+  default_format: 'json'      # 'json' or 'csv'
+  precision: 4                # Decimal precision for float values
+  include_debug_info: false   # Include debug information in output
+  
+  # Report generation
+  generate_summary: true      # Generate processing summary
+  include_rationale: true     # Include diagnosis rationale
+  include_quality_metrics: true  # Include quality assessment results
+  
+  # File naming
+  timestamp_format: '%Y%m%d_%H%M%S'  # Timestamp format for output files
+  add_timestamp_suffix: false         # Add timestamp to output filenames
+
+# Validation Configuration  
+validation:
+  # Input validation
+  validate_inputs: true       # Enable input validation
+  strict_mode: false          # Strict validation mode
+  
+  # File validation
+  max_file_size_mb: 100       # Maximum input file size
+  allowed_extensions: ['.mat']  # Allowed file extensions
+  
+  # Signal validation
+  min_signal_length: 4096     # Minimum signal length in samples
+  max_signal_length: 1000000  # Maximum signal length in samples
+  check_signal_integrity: true  # Check for corrupted signals
+
+# Experimental Features (disable in production)
+experimental:
+  enable_adaptive_thresholds: false   # Adaptive threshold adjustment
+  enable_ensemble_methods: false      # Ensemble classification methods
+  enable_deep_learning: false         # Deep learning models (future)
+  debug_intermediate_results: false   # Save intermediate processing results

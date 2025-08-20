@@ -1,0 +1,158 @@
+# BearingDX Sensitive Configuration  
+# Inherits from defaults.yaml and overrides for sensitive fault detection
+# Optimized to minimize false negatives at the cost of some false positives
+
+# Inherit all defaults
+_inherit_from: 'defaults.yaml'
+
+# Sensitive fusion thresholds
+fusion_thresholds:
+  # Ball fault detection (more lenient)
+  min_ball_score: 0.65              # Lower threshold for ball fault (was 0.72)
+  min_bsf_snr: 1.60                 # Lower BSF SNR requirement (was 1.90)
+  min_ftf_snr: 1.00                 # Lower FTF SNR requirement (was 1.12)
+  min_sb_ratio: 0.98                # Lower sideband ratio (was 1.02)
+  promote_ball_score: 0.65          # Lower promotion threshold (was 0.72)
+  
+  # Inner/Outer race detection (more lenient)
+  iror_snr_min: 1.40                # Lower BPFI/BPFO SNR requirement (was 1.70)
+  iror_ratio_min: 1.05              # Lower dominance ratio (was 1.10)
+  
+  # Normal classification (less restrictive)
+  normal_td_conf_min: 0.50          # Lower TD confidence for Normal (was 0.60)
+  normal_ball_score_max: 0.75       # Higher ball score allowed (was 0.65)
+  normal_iror_dom_max: 1.80         # Higher IR/OR dominance allowed (was 1.60)
+  normal_iror_ratio_max: 1.25       # Higher ratio allowed (was 1.15)
+  normal_fault_energy_max: 2.50     # Higher fault energy allowed (was 2.00)
+  min_health_for_normal: 0.60       # Lower health threshold (was 0.70)
+
+# More lenient quality requirements  
+quality:
+  min_file_quality: 0.50            # Lower quality requirement (was 0.6)
+  min_valid_segments: 3             # Fewer valid segments required (was 5)
+  clipping_threshold: 0.008         # Higher clipping tolerance (was 0.005)
+  low_variance_threshold: 5e-7      # Lower variance requirement (was 1e-6)
+  min_quality_for_fd: 0.3           # Lower quality for FD analysis (was 0.4)
+
+# Sensitive time domain settings
+time_domain:
+  kurtosis_burst_threshold: 4.0     # Lower kurtosis threshold (was 5.0)
+  high_peak_factor: 4.0             # Lower peak factor (was 5.0)
+  
+  # Lower reliability requirements for early detection
+  reliability:
+    IR: 0.65    # Lower IR reliability requirement (was 0.70)
+    OR: 0.55    # Lower OR reliability requirement (was 0.60)
+    Ball: 0.45  # Lower Ball reliability requirement (was 0.50)
+
+# Sensitive frequency domain settings
+frequency_domain:
+  min_snr_for_detection: 1.2        # Lower minimum SNR (was 1.5)
+  fault_freq_tolerance: 0.12        # Looser frequency tolerance (was 0.1)
+  harmonic_count: 4                 # Analyze more harmonics (was 3)
+  sideband_count: 3                 # Analyze more sidebands (was 2)
+
+# More permissive envelope analysis
+envelope:
+  min_band_snr: 1.0                 # Lower band selection SNR (was 1.2)
+  selection_metric: 'max_cyclic_content'  # Consider all cyclic content
+
+# Sensitive classification settings
+classification:
+  mode: 'sensitive'
+  min_confidence_healthy: 0.50      # Lower confidence for Healthy (was 0.6)
+  min_confidence_unhealthy: 0.30    # Lower confidence for Unhealthy (was 0.4)
+
+# More permissive multisensor fusion
+multisensor:
+  require_sensor_consensus: false   # Don't require sensor agreement
+  disagreement_threshold: 0.4       # Looser consensus requirement (was 0.3)
+  
+  # More balanced sensor weights
+  sensor_weights:
+    DE: 0.6   # Reduce DE weight (was 0.7)
+    FE: 0.4   # Increase FE weight (was 0.3)
+    BA: 0.3   # Increase BA weight (was 0.2)
+
+# Evidence weighting - consider all evidence types
+fusion:
+  td_weight: 0.5                    # Increase TD weight (was 0.4)
+  fd_weight: 0.5                    # Balance FD weight (was 0.6)
+  quality_weight: 0.1               # Reduce quality constraint (was 0.2)
+
+# Performance settings optimized for sensitivity
+performance:
+  use_top_segments_only: false      # Use all valid segments (was true)
+  top_segment_fraction: 0.5         # Use more segments if enabled (was 0.25)
+
+# More permissive validation
+validation:
+  strict_mode: false                # Disable strict validation
+  min_signal_length: 2048           # Allow shorter signals (was 4096)
+  check_signal_integrity: true      # Still check integrity
+
+# Sensitive output settings  
+output:
+  include_debug_info: false         # Reduce output verbosity (was false)
+  include_rationale: true           # Always include rationale
+  precision: 4                      # Standard precision
+
+# Standard logging for sensitive mode
+logging:
+  level: 'INFO'                     # Standard logging level
+  file_output: false                # No file logging by default
+
+# Additional sensitive-specific thresholds
+sensitive_overrides:
+  # Reduce Normal gate strictness
+  enable_lenient_normal_gate: true
+  lenient_normal_multiplier: 1.2    # Multiply Normal thresholds by this factor
+  
+  # Early fault detection features
+  enable_early_fault_detection: true
+  early_fault_kurtosis_min: 3.5     # Lower kurtosis for early detection
+  early_fault_crest_min: 4.0        # Lower crest factor for early detection
+  
+  # Enhanced weak signal detection
+  enable_weak_signal_boost: true
+  weak_signal_snr_boost: 0.2        # Add to SNR calculations
+  
+  # Broader frequency analysis
+  extended_harmonic_analysis: true
+  max_harmonic_count: 5             # Analyze up to 5 harmonics
+  
+  # Uncertainty handling
+  prefer_fault_over_uncertain: true  # Lean toward fault classification
+  uncertain_confidence_penalty: 0.1  # Reduce confidence for uncertain
+
+# Profile identification
+profile_info:
+  name: 'sensitive'
+  description: 'Sensitive fault detection optimized to minimize false negatives'
+  use_case: 'Early fault detection and predictive maintenance applications'
+  trade_offs: 'Higher sensitivity, lower specificity, may generate more false alarms'
+  
+# Advanced sensitive features
+advanced_sensitivity:
+  # Trend analysis enhancement
+  enable_micro_trend_analysis: true
+  micro_trend_window: 5             # Smaller trend analysis window
+  
+  # Pattern recognition
+  enable_pattern_matching: true
+  pattern_similarity_threshold: 0.8
+  
+  # Adaptive processing
+  enable_adaptive_windowing: true
+  adaptive_window_factor: 0.8       # Reduce effective window size
+  
+  # Multi-scale analysis
+  enable_multiscale_analysis: true
+  scale_factors: [0.5, 1.0, 2.0]    # Multiple time scales
+  
+# Warning and recommendation system for sensitive mode
+warnings:
+  enable_false_positive_warnings: true
+  recommend_conservative_verification: true
+  suggest_multiple_measurements: true
+  highlight_uncertain_cases: true

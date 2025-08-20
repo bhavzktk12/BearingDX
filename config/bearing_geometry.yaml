@@ -1,0 +1,236 @@
+# Bearing Geometry Database
+# Contains specifications for various bearing types used in fault frequency calculations
+
+# Default CWRU bearing (used if no specific bearing is specified)
+default: &cwru_default
+  name: "SKF 6205-2RS JEM"
+  description: "Case Western Reserve University standard test bearing"
+  rolling_elements: 9
+  ball_diameter_mm: 7.938
+  pitch_diameter_mm: 39.04
+  contact_angle_deg: 0.0
+  manufacturer: "SKF"
+  series: "6205"
+  deep_groove: true
+  
+# CWRU Dataset Bearings
+cwru:
+  standard: *cwru_default
+  
+  # Alternative CWRU bearing configurations (if different test setups exist)
+  variant_a:
+    <<: *cwru_default
+    name: "SKF 6205-2RS JEM (Variant A)"
+    description: "CWRU bearing variant A with slightly different specs"
+    
+# Common Industrial Bearings
+industrial:
+  # SKF 6000 Series Deep Groove Ball Bearings
+  skf_6204:
+    name: "SKF 6204"
+    description: "SKF 6204 deep groove ball bearing"
+    rolling_elements: 8
+    ball_diameter_mm: 7.144
+    pitch_diameter_mm: 31.85
+    contact_angle_deg: 0.0
+    manufacturer: "SKF"
+    series: "6204"
+    deep_groove: true
+    
+  skf_6205: *cwru_default  # Same as CWRU default
+    
+  skf_6206:
+    name: "SKF 6206"
+    description: "SKF 6206 deep groove ball bearing" 
+    rolling_elements: 9
+    ball_diameter_mm: 9.525
+    pitch_diameter_mm: 46.4
+    contact_angle_deg: 0.0
+    manufacturer: "SKF"
+    series: "6206"
+    deep_groove: true
+    
+  skf_6207:
+    name: "SKF 6207"
+    description: "SKF 6207 deep groove ball bearing"
+    rolling_elements: 8
+    ball_diameter_mm: 11.112
+    pitch_diameter_mm: 53.65
+    contact_angle_deg: 0.0
+    manufacturer: "SKF"
+    series: "6207"
+    deep_groove: true
+    
+  # NSK Bearings
+  nsk_6205:
+    name: "NSK 6205"
+    description: "NSK 6205 deep groove ball bearing"
+    rolling_elements: 9
+    ball_diameter_mm: 7.938
+    pitch_diameter_mm: 39.04
+    contact_angle_deg: 0.0
+    manufacturer: "NSK"
+    series: "6205"
+    deep_groove: true
+    
+  # Timken Bearings  
+  timken_6205:
+    name: "Timken 6205"
+    description: "Timken 6205 deep groove ball bearing"
+    rolling_elements: 9
+    ball_diameter_mm: 7.938
+    pitch_diameter_mm: 39.04
+    contact_angle_deg: 0.0
+    manufacturer: "Timken"
+    series: "6205"
+    deep_groove: true
+
+# Angular Contact Ball Bearings
+angular_contact:
+  skf_7205:
+    name: "SKF 7205 BECBP"
+    description: "SKF 7205 angular contact ball bearing"
+    rolling_elements: 9
+    ball_diameter_mm: 7.938
+    pitch_diameter_mm: 39.04
+    contact_angle_deg: 15.0  # Typical angular contact bearing
+    manufacturer: "SKF"
+    series: "7205"
+    deep_groove: false
+    
+  skf_7305:
+    name: "SKF 7305 BECBP"
+    description: "SKF 7305 angular contact ball bearing"
+    rolling_elements: 10
+    ball_diameter_mm: 9.525
+    pitch_diameter_mm: 46.4
+    contact_angle_deg: 15.0
+    manufacturer: "SKF"
+    series: "7305"
+    deep_groove: false
+
+# Roller Bearings (for future extension)
+cylindrical_roller:
+  skf_nu205:
+    name: "SKF NU 205 ECP"
+    description: "SKF NU 205 cylindrical roller bearing"
+    rolling_elements: 12
+    roller_diameter_mm: 7.5
+    roller_length_mm: 7.5
+    pitch_diameter_mm: 39.04
+    contact_angle_deg: 0.0
+    manufacturer: "SKF"
+    series: "NU205"
+    bearing_type: "cylindrical_roller"
+    
+# Spherical Roller Bearings  
+spherical_roller:
+  skf_22205:
+    name: "SKF 22205 E"
+    description: "SKF 22205 spherical roller bearing"
+    rolling_elements: 16
+    roller_diameter_mm: 8.0
+    pitch_diameter_mm: 39.04
+    contact_angle_deg: 0.0
+    manufacturer: "SKF"
+    series: "22205"
+    bearing_type: "spherical_roller"
+
+# Tapered Roller Bearings
+tapered_roller:
+  timken_30205:
+    name: "Timken 30205"
+    description: "Timken 30205 tapered roller bearing"
+    rolling_elements: 14
+    roller_diameter_mm: 7.0
+    pitch_diameter_mm: 39.04
+    contact_angle_deg: 12.0
+    manufacturer: "Timken"
+    series: "30205"
+    bearing_type: "tapered_roller"
+
+# Research and Testing Bearings
+research:
+  # IMS (Intelligent Maintenance Systems) bearings
+  ims_test:
+    name: "IMS Test Bearing"
+    description: "Bearing used in IMS dataset"
+    rolling_elements: 16
+    ball_diameter_mm: 7.92
+    pitch_diameter_mm: 33.5
+    contact_angle_deg: 0.0
+    manufacturer: "Unknown"
+    series: "IMS"
+    deep_groove: true
+    
+  # FEMTO-ST bearings
+  femto_test:
+    name: "FEMTO-ST Test Bearing"
+    description: "Bearing used in FEMTO-ST dataset"
+    rolling_elements: 8
+    ball_diameter_mm: 7.92
+    pitch_diameter_mm: 33.5
+    contact_angle_deg: 0.0
+    manufacturer: "Unknown"
+    series: "FEMTO"
+    deep_groove: true
+
+# Bearing geometry calculation formulas and constants
+formulas:
+  description: "Standard bearing fault frequency calculation formulas"
+  
+  # Fault frequency formulas (for reference)
+  bpfi_formula: "BPFI = (Z/2) * (1 + (Bd/Pd) * cos(θ)) * (RPM/60)"
+  bpfo_formula: "BPFO = (Z/2) * (1 - (Bd/Pd) * cos(θ)) * (RPM/60)"
+  bsf_formula: "BSF = (Pd/2*Bd) * (1 - (Bd/Pd)² * cos²(θ)) * (RPM/60)"
+  ftf_formula: "FTF = (1/2) * (1 - (Bd/Pd) * cos(θ)) * (RPM/60)"
+  
+  # Constants and notes
+  constants:
+    Z: "Number of rolling elements (balls or rollers)"
+    Bd: "Ball or roller diameter"  
+    Pd: "Pitch diameter (center-to-center distance of rolling elements)"
+    theta: "Contact angle in degrees"
+    RPM: "Shaft rotational speed in revolutions per minute"
+    
+  notes:
+    - "All diameters should be in consistent units (mm recommended)"
+    - "Contact angle is 0° for radial bearings, typically 15-40° for angular contact"
+    - "For roller bearings, use effective roller diameter"
+    - "Formulas assume no slip between rolling elements and races"
+
+# Validation rules for bearing geometry
+validation:
+  rolling_elements:
+    min: 3
+    max: 50
+    typical_range: [6, 20]
+    
+  ball_diameter_mm:
+    min: 1.0
+    max: 50.0
+    
+  pitch_diameter_mm: 
+    min: 5.0
+    max: 500.0
+    
+  contact_angle_deg:
+    min: 0.0
+    max: 45.0
+    
+  # Consistency checks
+  geometric_constraints:
+    - "ball_diameter_mm < pitch_diameter_mm"
+    - "rolling_elements >= 3"
+    - "contact_angle_deg >= 0 and contact_angle_deg <= 45"
+
+# Default mappings for common bearing part numbers
+part_number_mapping:
+  # Map common part numbers to bearing configurations
+  "6205": "industrial.skf_6205" 
+  "6204": "industrial.skf_6204"
+  "6206": "industrial.skf_6206"
+  "6207": "industrial.skf_6207"
+  "SKF6205": "industrial.skf_6205"
+  "NSK6205": "industrial.nsk_6205"
+  "TIMKEN6205": "industrial.timken_6205"
